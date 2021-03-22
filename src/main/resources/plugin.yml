@@ -1,0 +1,12 @@
+name: Report
+version: ${project.version}
+main: me.j_m.report.Report
+api-version: 1.16
+authors: [ J_M ]
+description: report plugin
+
+commands:
+  report:
+    usage: /report <player> [reason]
+    description: report someone for cheating
+    permission: report.report
