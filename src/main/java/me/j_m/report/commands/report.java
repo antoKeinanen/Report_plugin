@@ -16,6 +16,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
+import java.sql.Time;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 
 public class report implements CommandExecutor {
 
@@ -33,11 +37,22 @@ public class report implements CommandExecutor {
             Player player = (Player) sender;
             if (args.length >= 1){
                 if (args.length >= 2){
+                    String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+
                     int id = loader.getConfig().getInt("Amount");
                     id++;
                     loader.getConfig().set("Amount", id);
+                    loader.saveConfig();
 
-                    System.out.println(loader.getConfig().getInt("Amount"));
+                    loader.getConfig().set("Reports." + id + ".reporter", player.getDisplayName());
+                    loader.getConfig().set("Reports." + id + ".reporterUID", player.getUniqueId().toString());
+                    loader.getConfig().set("Reports." + id + ".offender", args[0]);
+                    loader.getConfig().set("Reports." + id + ".offenderUID", Bukkit.getPlayer(args[0]).getUniqueId().toString());
+                    loader.getConfig().set("Reports." + id + ".reason", args[1]);
+                    loader.getConfig().set("Reports." + id + ".timeStamp", timeStamp);
+                    loader.saveConfig();
+
+                    Bukkit.broadcast("Player %s has been reported!", "report.reportMsg");
                 }
                 else {
                     if (Bukkit.getServer().getPlayer(args[0]) != null)
@@ -71,9 +86,9 @@ public class report implements CommandExecutor {
                         .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/report %s chat", offender)))
                         .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(String.format("Report %s for chat abuse.", offender)).create())).create())
                 .append("\n")
-                .append(new ComponentBuilder("●cheating")
-                        .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/report %s cross teaming", offender)))
-                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(String.format("Report %s cross teaming.", offender)).create())).create()).create();
+                .append(new ComponentBuilder("●cross teaming")
+                        .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/report %s crossteaming", offender)))
+                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(String.format("Report %s for cross teaming.", offender)).create())).create()).create();
 
         bookMeta.spigot().addPage(page);
 

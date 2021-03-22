@@ -53,8 +53,10 @@ public class FileLoader {
         if (configFile == null)
             this.configFile = new File(this.plugin.getDataFolder(), "data.yml");
         if (!this.configFile.exists()){
+            System.out.println("No data.yml file found creating one...");
             this.plugin.saveResource("data.yml", false);
             this.getConfig().set("Amount", 0);
+            System.out.println("Data.yml created successfully!");
         }
     }
 }

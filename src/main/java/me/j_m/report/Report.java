@@ -16,6 +16,6 @@ public final class Report extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        loader.saveConfig();
     }
 }
