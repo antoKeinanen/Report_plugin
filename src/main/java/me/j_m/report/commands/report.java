@@ -16,19 +16,26 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
-import java.sql.Time;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 public class report implements CommandExecutor {
 
     private final Report plugin;
     private final FileLoader loader;
+    private final List<String> reasons = new ArrayList<>();
 
     public report(Report plugin, FileLoader loader){
         this.plugin = plugin;
         this.loader = loader;
+
+        reasons.add("cheating");
+        reasons.add("appearance");
+        reasons.add("chat");
+        reasons.add("crossteaming");
     }
 
     @Override
@@ -37,22 +44,24 @@ public class report implements CommandExecutor {
             Player player = (Player) sender;
             if (args.length >= 1){
                 if (args.length >= 2){
-                    String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+                    if(reasons.contains(args[1])){
+                        String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
 
-                    int id = loader.getConfig().getInt("Amount");
-                    id++;
-                    loader.getConfig().set("Amount", id);
-                    loader.saveConfig();
+                        int id = loader.getConfig().getInt("Amount");
+                        id++;
+                        loader.getConfig().set("Amount", id);
+                        loader.saveConfig();
 
-                    loader.getConfig().set("Reports." + id + ".reporter", player.getDisplayName());
-                    loader.getConfig().set("Reports." + id + ".reporterUID", player.getUniqueId().toString());
-                    loader.getConfig().set("Reports." + id + ".offender", args[0]);
-                    loader.getConfig().set("Reports." + id + ".offenderUID", Bukkit.getPlayer(args[0]).getUniqueId().toString());
-                    loader.getConfig().set("Reports." + id + ".reason", args[1]);
-                    loader.getConfig().set("Reports." + id + ".timeStamp", timeStamp);
-                    loader.saveConfig();
+                        loader.getConfig().set("Reports." + id + ".reporter", player.getDisplayName());
+                        loader.getConfig().set("Reports." + id + ".reporterUID", player.getUniqueId().toString());
+                        loader.getConfig().set("Reports." + id + ".offender", args[0]);
+                        loader.getConfig().set("Reports." + id + ".offenderUID", Bukkit.getPlayer(args[0]).getUniqueId().toString());
+                        loader.getConfig().set("Reports." + id + ".reason", args[1]);
+                        loader.getConfig().set("Reports." + id + ".timeStamp", timeStamp);
+                        loader.saveConfig();
 
-                    Bukkit.broadcast("Player %s has been reported!", "report.reportMsg");
+                        Bukkit.broadcast("Player %s has been reported!", "report.reportMsg");
+                    }
                 }
                 else {
                     if (Bukkit.getServer().getPlayer(args[0]) != null)

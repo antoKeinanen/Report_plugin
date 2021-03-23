@@ -10,3 +10,7 @@ commands:
     usage: /report <player> [reason]
     description: report someone for cheating
     permission: report.report
+  reports:
+    usage: /reports
+    description: admin panel to check reported players
+    permission: report.admin
