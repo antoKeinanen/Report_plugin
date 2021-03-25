@@ -14,3 +14,7 @@ commands:
     usage: /reports
     description: admin panel to check reported players
     permission: report.admin
+  ban:
+    usage: /ban <player> <time> <reason>
+    description: bans a player for amount of time. Use perm instead of time to perm ban someone.
+    permission: report.ban
