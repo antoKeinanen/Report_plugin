@@ -8,15 +8,12 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventException;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TreeMap;
+import java.util.*;
 
 public class ban implements CommandExecutor, Listener {
 
@@ -33,23 +30,68 @@ public class ban implements CommandExecutor, Listener {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if(sender instanceof Player){
             Player player = (Player) sender;
-            if (args.length <= 3){
+            if (args.length >= 3){
                 Player offender = Bukkit.getPlayer(args[0]);
                 if (offender != null){
                     Calendar cal = Calendar.getInstance();
+                    int time = -1;
                     cal.setTime(new Date());
-                    cal.add(Calendar.MINUTE, 1);
+                    try{
+                        time = Integer.parseInt(args[1].replaceAll("[A-Za-z]", ""));
+                    }
+                    catch (Exception ex){
+                        if(args[1].equalsIgnoreCase("perm")){
+                            cal.add(Calendar.YEAR, 9999);
+                        }
+                    }
+                    if(time > 0){
+                        switch (args[1].replaceAll("[0-9]", "")){
+                            case "s":
+                                cal.add(Calendar.SECOND, time);
+                                break;
+                            case "min":
+                                cal.add(Calendar.MINUTE, time);
+                                break;
+                            case "h":
+                                cal.add(Calendar.HOUR, time);
+                                break;
+                            case "d":
+                                cal.add(Calendar.DAY_OF_MONTH, time);
+                                break;
+                            case "w":
+                                cal.add(Calendar.DAY_OF_MONTH, time * 7);
+                                break;
+                            case "m":
+                                cal.add(Calendar.MONTH, time);
+                                break;
+                            case "y":
+                                cal.add(Calendar.YEAR, time);
+                                break;
+                        }
+                    }
 
-                    loader.getConfig().set("bans." + player.getUniqueId().toString() + ".expires", parser.format(cal.getTime()));
+                    int prevPuns = loader.getConfig().getInt("bans." + player.getUniqueId().toString() + ".amount");
+                    int totalBans = loader.getConfig().getInt("totalBans");
+                    prevPuns ++;
+                    totalBans ++;
+                    loader.getConfig().set("totalBans", totalBans);
+                    loader.getConfig().set("bans." + player.getUniqueId().toString() + ".amount", prevPuns);
                     loader.saveConfig();
-                    offender.kickPlayer("§l§b Report network§r\n§a You have been banned from the server!§r\n");
+
+                    loader.getConfig().set("bans." + player.getUniqueId().toString() + "." + prevPuns + ".banId", totalBans);
+                    loader.getConfig().set("bans." + player.getUniqueId().toString() + "." + prevPuns + ".reason", args[2]);
+                    loader.getConfig().set("bans." + player.getUniqueId().toString() + "." + prevPuns + ".bannedBy", player.getDisplayName());
+                    loader.getConfig().set("bans." + player.getUniqueId().toString() + "." + prevPuns + ".length", args[1]);
+                    loader.getConfig().set("bans." + player.getUniqueId().toString() + "." + prevPuns + ".expires", parser.format(cal.getTime()));
+                    loader.saveConfig();
+                    player.kickPlayer(String.format("§l§bReport network§r\n\n§a You have been banned from the server!§r\n\n§aReason:§r§b %s§r\n\n§aYou will be unbanned:§r§b %s§r\n\n§aIf you think this is a problem contact staff on forums!§r\n\n§aBan id:§r§b #%s§r", args[2], parser.format(cal.getTime()), totalBans));
                 }
                 else{
                     player.sendMessage(ChatColor.RED + "Player with name " + args[0] + " not found!");
                 }
             }
             else
-                player.kickPlayer("§l§b Report network§r\n\n§a You have been banned from the server!§r\n\n§aReason:§r§b cheating§r\n\n§aIf you think this is a problem contact staff on forums!§r\n\n§aBan id:§r§b #1234567§r");
+                player.sendMessage(ChatColor.RED + "Invalid usage!");
         }
 
         return true;
@@ -60,17 +102,19 @@ public class ban implements CommandExecutor, Listener {
         Player player = (Player) e.getPlayer();
         try {
             if (loader.getConfig().getConfigurationSection("bans").contains(player.getUniqueId().toString())) {
-                Date expireDate = null;
-                try {
-                    expireDate = parser.parse(loader.getConfig().getString("bans." + player.getUniqueId() + ".expires"));
-                } catch (Exception ex) {
-                }
-
-                if (expireDate.after(new Date())) {
-                    player.kickPlayer("§l§b Report network§r\n\n§a You have been banned from the server!§r\n\n§aReason:§r§b cheating§r\n\n§aIf you think this is a problem contact staff on forums!§r\n\n§aBan id:§r§b #1234567§r");
+                int banAmount = loader.getConfig().getInt("bans." + player.getUniqueId().toString() + ".amount");
+                for (int i = 1; i <= banAmount; i++) {
+                    Date expireDate = parser.parse(loader.getConfig().getString("bans." + player.getUniqueId().toString() + "." + i + ".expires"));
+                    if (expireDate.after(new Date())) {
+                        String reason = loader.getConfig().getString("bans." + player.getUniqueId().toString() + "." + i + ".reason");
+                        int id = loader.getConfig().getInt("bans." + player.getUniqueId().toString() + "." + i + ".banId");
+                        player.kickPlayer(String.format("§l§bReport network§r\n\n§a You have been banned from the server!§r\n\n§aReason:§r§b %s§r\n\n§aYou will be unbanned:§r§b %s§r\n\n§aIf you think this is a problem contact staff on forums!§r\n\n§aBan id:§r§b #%s§r", reason, expireDate, id));
+                    }
                 }
             }
         }
-        catch (Exception ex){   }
+        catch (Exception ex){
+            System.out.println(Arrays.toString(ex.getStackTrace()));
+        }
     }
 }

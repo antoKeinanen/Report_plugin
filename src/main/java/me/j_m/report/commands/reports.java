@@ -76,10 +76,7 @@ public class reports implements Listener, CommandExecutor {
 
     @EventHandler
     public void onInventoryClick(final InventoryClickEvent e){
-        System.out.println("1");
         if (e.getInventory() != inv) return;
-
-        System.out.println("2");
 
         e.setCancelled(true);
 

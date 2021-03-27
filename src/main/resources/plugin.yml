@@ -18,3 +18,11 @@ commands:
     usage: /ban <player> <time> <reason>
     description: bans a player for amount of time. Use perm instead of time to perm ban someone.
     permission: report.ban
+  reload:
+    usage: /reload
+    description: reloads config files
+    permission: report.reload
+  mute:
+    usage: /mute <player> <time> <reason>
+    description: Mutes a player for amount of time. Use perm instead of time to perm mute someone.
+    permission: report.mute

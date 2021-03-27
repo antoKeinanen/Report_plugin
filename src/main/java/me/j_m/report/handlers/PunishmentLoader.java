@@ -22,11 +22,11 @@ public class PunishmentLoader {
 
     public void reloadConfig() {
         if (this.configFile == null)
-            this.configFile = new File(this.plugin.getDataFolder(), "bans.yml");
+            this.configFile = new File(this.plugin.getDataFolder(), "punishments.yml");
 
         this.dataConfig = YamlConfiguration.loadConfiguration(this.configFile);
 
-        InputStream defaultStream = plugin.getResource("bans.yml");
+        InputStream defaultStream = plugin.getResource("punishments.yml");
         if (defaultStream != null){
             YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(defaultStream));
             this.dataConfig.setDefaults(defaultConfig);
@@ -51,11 +51,11 @@ public class PunishmentLoader {
 
     public void saveDefaultConfig(){
         if (configFile == null)
-            this.configFile = new File(this.plugin.getDataFolder(), "bans.yml");
+            this.configFile = new File(this.plugin.getDataFolder(), "punishments.yml");
         if (!this.configFile.exists()){
-            System.out.println("No bans.yml file found creating one...");
-            this.plugin.saveResource("bans.yml", false);
-            System.out.println("bans.yml created successfully!");
+            System.out.println("No punishments.yml file found creating one...");
+            this.plugin.saveResource("punishments.yml", false);
+            System.out.println("punishments.yml created successfully!");
         }
     }
 }
