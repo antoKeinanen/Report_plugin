@@ -1,7 +1,10 @@
 package me.j_m.report;
 
+import me.j_m.report.TabCompletors.Ban;
+import me.j_m.report.TabCompletors.Mute;
 import me.j_m.report.commands.*;
 import me.j_m.report.handlers.FileLoader;
+import me.j_m.report.handlers.PlayerBanHandler;
 import me.j_m.report.handlers.PlayerMuteHandler;
 import me.j_m.report.handlers.PunishmentLoader;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -19,10 +22,16 @@ public final class Report extends JavaPlugin {
         reload reload = new reload(this, punLoader, loader);
         mute mute = new mute(this, punLoader);
         PlayerMuteHandler muteHandler = new PlayerMuteHandler(this, punLoader);
+        PlayerBanHandler banHandler = new PlayerBanHandler(this, punLoader);
+        Ban banCompleter = new Ban();
+        Mute muteCompleter = new Mute();
 
         getServer().getPluginManager().registerEvents(reports, this);
-        getServer().getPluginManager().registerEvents(ban, this);
+        getServer().getPluginManager().registerEvents(banHandler, this);
         getServer().getPluginManager().registerEvents(muteHandler, this);
+
+        this.getCommand("ban").setTabCompleter(banCompleter);
+        this.getCommand("mute").setTabCompleter(muteCompleter);
 
         this.getCommand("mute").setExecutor(mute);
         this.getCommand("report").setExecutor(report);
